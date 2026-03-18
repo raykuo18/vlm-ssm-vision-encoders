@@ -1,0 +1,5 @@
+public_id,display_name,pretraining,params,resolution,vision_tokens,weighted_vqa,weighted_loc,weighted_overall
+vit-s-in1k-224,ViT-S / IN1K / 224,IN1K,22M,224x224,196,57.25,17.82,51.95
+maxvit-t-in1k-224-s3,MaxViT-T / IN1K / 224 / stage 3,IN1K,31M,224x224,196,58.75,15.79,52.98
+mambavision-b-in1k-224-s3,MambaVision-B / IN1K / 224 / stage 3,IN1K,98M,224x224,196,56.53,31.17,53.12
+vmamba-s-in1k-224-s3,VMamba-S / IN1K / 224 / stage 3,IN1K,50M,224x224,196,62.39,39.17,59.27

@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vlm-ssm-vision-encoders"
+version = "0.1.0"
+description = "Inference-only release for evaluating vision backbones in modular VLMs."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+dependencies = [
+    "accelerate>=1.10.1",
+    "einops>=0.8.1",
+    "huggingface_hub>=0.26.5,<1.0",
+    "jsonlines>=4.0.0",
+    "Pillow>=11.0.0",
+    "PyYAML>=6.0.2",
+    "requests>=2.32.3",
+    "rich>=13.7.1",
+    "sentencepiece>=0.2.0",
+    "timm>=1.0.15",
+    "torch>=2.9.0",
+    "torchvision>=0.24.0",
+    "transformers>=4.49.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.9.0",
+]
+
+[project.scripts]
+vlm-backbones-chat = "vlm_backbones.cli:chat_main"
+vlm-backbones-download = "vlm_backbones.cli:download_main"
+vlm-backbones-predict = "vlm_backbones.cli:predict_main"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+vlm_backbones = ["models/backbones/vision/vmamba_conf/**/*.yaml"]
+
+[tool.setuptools.data-files]
+"model_zoo" = ["model_zoo/models.yaml"]
+
+[tool.ruff]
+line-length = 121
+target-version = "py310"

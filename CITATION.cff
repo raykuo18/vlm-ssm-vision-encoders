@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the paper and update this metadata with the final arXiv identifier."
+title: "Do VLMs Need Vision Transformers? Evaluating State Space Models as Vision Encoders"
+version: "0.1.0"
+license: "MIT"
+abstract: >-
+  Inference-only reference implementation for the released checkpoints accompanying
+  the paper "Do VLMs Need Vision Transformers? Evaluating State Space Models as
+  Vision Encoders".

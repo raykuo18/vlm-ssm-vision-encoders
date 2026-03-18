@@ -1,0 +1,9 @@
+public_id,display_name,family,task,pretraining,params,resolution,vision_tokens,weighted_vqa,weighted_loc,weighted_overall
+vit-s-in1k-224,ViT-S / IN1K / 224,vit,classification,IN1K,22M,224x224,196,57.25,17.82,51.95
+maxvit-t-in1k-224-s3,MaxViT-T / IN1K / 224 / stage 3,maxvit,classification,IN1K,31M,224x224,196,58.75,15.79,52.98
+mambavision-b-in1k-224-s3,MambaVision-B / IN1K / 224 / stage 3,mambavision,classification,IN1K,98M,224x224,196,56.53,31.17,53.12
+vmamba-s-in1k-224-s3,VMamba-S / IN1K / 224 / stage 3,vmamba,classification,IN1K,50M,224x224,196,62.39,39.17,59.27
+vitdet-b-coco-1024,ViTDet-B / COCO / 1024,vitdet,detection,IN1K -> COCO,111M,1024x1024,4096,63.00,43.74,60.42
+vit-adapter-deit-b-ade20k-512,ViT-Adapter DeiT-B / ADE20K / 512,vit_adapter,segmentation,IN1K -> ADE20K,134M,512x512,1024,60.69,33.77,57.07
+vmamba-s-coco-1333x800,VMamba-S / COCO / 1333x800,vmamba,detection,IN1K -> COCO,50M,1333x800,4150,62.78,47.94,60.78
+vmamba-s-ade20k-512,VMamba-S / ADE20K / 512,vmamba,segmentation,IN1K -> ADE20K,50M,512x512,1024,63.21,44.98,60.76

@@ -1,0 +1,167 @@
+models:
+- id: vit-s-in1k-224
+  display_name: ViT-S / IN1K / 224
+  family: vit
+  task: classification
+  download_url: https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints/resolve/main/vit-s-in1k-224.tar
+  sha256: 9359fc2e2bcd3a5afe5b801fcf99b964dad8becc398eac79ac118c9334340505
+  artifact_filename: vit-s-in1k-224.tar
+  internal_run_id: in1k-224px-vit-s+7b-vicuna+ep1+ft+x7
+  vision_backbone_id: in1k-vit-s
+  llm_backbone_id: vicuna-v15-7b
+  image_resize_strategy: letterbox
+  arch_specifier: no-align+gelu-mlp
+  resolution: 224x224
+  vision_tokens: 196
+  params: 22M
+  pretraining: IN1K
+  metrics:
+    weighted_vqa: 57.25
+    weighted_loc: 17.82
+    weighted_overall: 51.95
+- id: maxvit-t-in1k-224-s3
+  display_name: MaxViT-T / IN1K / 224 / stage 3
+  family: maxvit
+  task: classification
+  download_url: https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints/resolve/main/maxvit-t-in1k-224-s3.tar
+  sha256: 2b844750143b028f90bce4d96f00696713c15c0e332ccc7dac770fa485869f4e
+  artifact_filename: maxvit-t-in1k-224-s3.tar
+  internal_run_id: in1k-224px-maxvit-t-letterbox-s3+7b-vicuna+ep1+ft+x7
+  vision_backbone_id: in1k-224px-maxvit-t-s3
+  llm_backbone_id: vicuna-v15-7b
+  image_resize_strategy: letterbox
+  arch_specifier: no-align+gelu-mlp
+  resolution: 224x224
+  vision_tokens: 196
+  params: 31M
+  pretraining: IN1K
+  metrics:
+    weighted_vqa: 58.75
+    weighted_loc: 15.79
+    weighted_overall: 52.98
+- id: mambavision-b-in1k-224-s3
+  display_name: MambaVision-B / IN1K / 224 / stage 3
+  family: mambavision
+  task: classification
+  download_url: https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints/resolve/main/mambavision-b-in1k-224-s3.tar
+  sha256: c8cf2e870dbda8bd6d45b6388c4bc71e9ee8296b28cdf44c843d9e5916eeeeeb
+  artifact_filename: mambavision-b-in1k-224-s3.tar
+  internal_run_id: mambavision-b-letterbox-s3+7b-vicuna+ep1+ft+x7
+  vision_backbone_id: mambavision-b-s3
+  llm_backbone_id: vicuna-v15-7b
+  image_resize_strategy: letterbox
+  arch_specifier: no-align+gelu-mlp
+  resolution: 224x224
+  vision_tokens: 196
+  params: 98M
+  pretraining: IN1K
+  metrics:
+    weighted_vqa: 56.53
+    weighted_loc: 31.17
+    weighted_overall: 53.12
+- id: vmamba-s-in1k-224-s3
+  display_name: VMamba-S / IN1K / 224 / stage 3
+  family: vmamba
+  task: classification
+  download_url: https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints/resolve/main/vmamba-s-in1k-224-s3.tar
+  sha256: 0b3febfb685975ea8b9e81ab3e9f2f9637b67b8cca92f52a7899ba5a1130108f
+  artifact_filename: vmamba-s-in1k-224-s3.tar
+  internal_run_id: vmamba-small-s2l15+7b-vicuna+ep1+s3l14+ft+x7
+  vision_backbone_id: vmamba-small-s2l15
+  llm_backbone_id: vicuna-v15-7b
+  image_resize_strategy: letterbox
+  arch_specifier: no-align+gelu-mlp
+  vmamba_feature_stage: 3
+  vmamba_feature_layer: 14
+  resolution: 224x224
+  vision_tokens: 196
+  params: 50M
+  pretraining: IN1K
+  metrics:
+    weighted_vqa: 62.39
+    weighted_loc: 39.17
+    weighted_overall: 59.27
+- id: vitdet-b-coco-1024
+  display_name: ViTDet-B / COCO / 1024
+  family: vitdet
+  task: detection
+  download_url: https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints/resolve/main/vitdet-b-coco-1024.tar
+  sha256: 15d4c2bc08c44c9fe731ca0fbdf7449833782fcc1daace1866765dd753fec1de
+  artifact_filename: vitdet-b-coco-1024.tar
+  internal_run_id: vitdet-b-maskrcnn-letterbox+7b-vicuna+ep1+ft+x7
+  vision_backbone_id: vitdet-b-maskrcnn
+  llm_backbone_id: vicuna-v15-7b
+  image_resize_strategy: letterbox
+  arch_specifier: no-align+gelu-mlp
+  resolution: 1024x1024
+  vision_tokens: 4096
+  params: 111M
+  pretraining: IN1K -> COCO
+  metrics:
+    weighted_vqa: 63.0
+    weighted_loc: 43.74
+    weighted_overall: 60.42
+- id: vit-adapter-deit-b-ade20k-512
+  display_name: ViT-Adapter DeiT-B / ADE20K / 512
+  family: vit_adapter
+  task: segmentation
+  download_url: https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints/resolve/main/vit-adapter-deit-b-ade20k-512.tar
+  sha256: d0cbd0a1d698496bbed4f38ca05e50e8a0f2a07e265157b7053beb4c9f64a73f
+  artifact_filename: vit-adapter-deit-b-ade20k-512.tar
+  internal_run_id: vit-adapter-upernet-deit-b-ade20k-512-letterbox+7b-vicuna+ep1+ft+x7
+  vision_backbone_id: vit-adapter-upernet-deit-b-ade20k-512
+  llm_backbone_id: vicuna-v15-7b
+  image_resize_strategy: letterbox
+  arch_specifier: no-align+gelu-mlp
+  resolution: 512x512
+  vision_tokens: 1024
+  params: 134M
+  pretraining: IN1K -> ADE20K
+  metrics:
+    weighted_vqa: 60.69
+    weighted_loc: 33.77
+    weighted_overall: 57.07
+- id: vmamba-s-coco-1333x800
+  display_name: VMamba-S / COCO / 1333x800
+  family: vmamba
+  task: detection
+  download_url: https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints/resolve/main/vmamba-s-coco-1333x800.tar
+  sha256: e9629e577275c042b0a9c48e666c9af81fef7291b7d23ed2b47ca03b4b0fa118
+  artifact_filename: vmamba-s-coco-1333x800.tar
+  internal_run_id: vmamba-small-s2l15-maskrcnn-1x-letterbox+7b-vicuna+ep1+s3l14+ft+x7
+  vision_backbone_id: vmamba-small-s2l15-det-maskrcnn-1x
+  llm_backbone_id: vicuna-v15-7b
+  image_resize_strategy: letterbox
+  arch_specifier: no-align+gelu-mlp
+  vmamba_feature_stage: 3
+  vmamba_feature_layer: 14
+  resolution: 1333x800
+  vision_tokens: 4150
+  params: 50M
+  pretraining: IN1K -> COCO
+  metrics:
+    weighted_vqa: 62.78
+    weighted_loc: 47.94
+    weighted_overall: 60.78
+- id: vmamba-s-ade20k-512
+  display_name: VMamba-S / ADE20K / 512
+  family: vmamba
+  task: segmentation
+  download_url: https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints/resolve/main/vmamba-s-ade20k-512.tar
+  sha256: bb3eef2ba5f7b9abd2cdd0d459e88c06d05ab75d8250843a7c51c819a509b188
+  artifact_filename: vmamba-s-ade20k-512.tar
+  internal_run_id: vmamba-small-s2l15-ade20k-letterbox+7b-vicuna+ep1+s3l14+ft+x7
+  vision_backbone_id: vmamba-small-s2l15-seg-ade20k
+  llm_backbone_id: vicuna-v15-7b
+  image_resize_strategy: letterbox
+  arch_specifier: no-align+gelu-mlp
+  vmamba_feature_stage: 3
+  vmamba_feature_layer: 14
+  resolution: 512x512
+  vision_tokens: 1024
+  params: 50M
+  pretraining: IN1K -> ADE20K
+  metrics:
+    weighted_vqa: 63.21
+    weighted_loc: 44.98
+    weighted_overall: 60.76

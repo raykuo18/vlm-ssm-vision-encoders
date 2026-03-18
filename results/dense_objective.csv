@@ -1,0 +1,5 @@
+public_id,display_name,task,pretraining,params,resolution,vision_tokens,weighted_vqa,weighted_loc,weighted_overall
+vitdet-b-coco-1024,ViTDet-B / COCO / 1024,detection,IN1K -> COCO,111M,1024x1024,4096,63.00,43.74,60.42
+vmamba-s-coco-1333x800,VMamba-S / COCO / 1333x800,detection,IN1K -> COCO,50M,1333x800,4150,62.78,47.94,60.78
+vit-adapter-deit-b-ade20k-512,ViT-Adapter DeiT-B / ADE20K / 512,segmentation,IN1K -> ADE20K,134M,512x512,1024,60.69,33.77,57.07
+vmamba-s-ade20k-512,VMamba-S / ADE20K / 512,segmentation,IN1K -> ADE20K,50M,512x512,1024,63.21,44.98,60.76
