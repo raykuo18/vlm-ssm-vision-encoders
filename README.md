@@ -1,5 +1,7 @@
 # VLM SSM Vision Encoders
 
+[arXiv](https://arxiv.org/abs/2603.19209) | [Project Page](https://lab-spell.github.io/vlm-ssm-vision-encoders/) | [Hugging Face Checkpoints](https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints)
+
 Inference-only release for the paper _Do VLMs Need Vision Transformers? Evaluating State Space Models as Vision Encoders_.
 
 This repository packages a clean public inference surface around a representative set of released checkpoints. It focuses on:
@@ -9,7 +11,7 @@ This repository packages a clean public inference surface around a representativ
 - reproducing the main public result tables included in `results/`
 - building validated environments for the released backbone families
 
-Training and evaluation code will be released soon.
+Training and evaluation code, along with additional checkpoints, will be released soon.
 
 ## Scope
 
@@ -114,6 +116,8 @@ export HF_TOKEN=[hf_token]
 ```
 
 5. Download a released checkpoint.
+
+Released checkpoints are hosted at [raykuo188/vlm-ssm-vision-encoders-checkpoints](https://huggingface.co/raykuo188/vlm-ssm-vision-encoders-checkpoints).
 
 ```bash
 vlm-backbones-download --model vmamba-s-in1k-224-s3
