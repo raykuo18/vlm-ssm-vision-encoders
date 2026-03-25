@@ -20,6 +20,50 @@ ensure_command() {
     command -v "${cmd}" >/dev/null 2>&1 || die "Missing required command: ${cmd}"
 }
 
+discover_nvcc() {
+    local candidate=""
+    local candidates=()
+
+    if candidate="$(command -v nvcc 2>/dev/null)"; then
+        printf '%s\n' "${candidate}"
+        return 0
+    fi
+
+    if [[ -n "${CUDA_HOME:-}" ]]; then
+        candidates+=("${CUDA_HOME}/bin/nvcc")
+    fi
+
+    candidates+=(
+        "/usr/local/cuda/bin/nvcc"
+        "/cm/shared/apps/cuda12.8/toolkit/12.8.0/bin/nvcc"
+        "/cm/shared/apps/cuda12.8/bin/nvcc"
+    )
+
+    local wildcard_candidate=""
+    for wildcard_candidate in /usr/local/cuda-*/bin/nvcc; do
+        candidates+=("${wildcard_candidate}")
+    done
+
+    for candidate in "${candidates[@]}"; do
+        if [[ -x "${candidate}" ]]; then
+            printf '%s\n' "${candidate}"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+ensure_nvcc_ready() {
+    local nvcc_path=""
+    if nvcc_path="$(discover_nvcc)"; then
+        export CUDA_HOME="${CUDA_HOME:-$(cd "$(dirname "${nvcc_path}")/.." && pwd)}"
+        export PATH="$(dirname "${nvcc_path}"):${PATH}"
+        return 0
+    fi
+    die "Missing required command: nvcc"
+}
+
 ensure_git_ready() {
     ensure_command git
 }
@@ -183,13 +227,13 @@ EOF
 }
 
 require_nvcc_for_build() {
-    ensure_command nvcc
+    ensure_nvcc_ready
 }
 
 require_nvcc_if_flash_attn() {
     local with_flash_attn="$1"
     if [[ "${with_flash_attn}" == "true" ]]; then
-        ensure_command nvcc
+        ensure_nvcc_ready
     fi
 }
 
@@ -211,9 +255,15 @@ detect_torch_cuda_arch_list() {
 
 parse_common_args() {
     ENV_NAME_DEFAULT="$1"
+    WITH_FLASH_ATTN_DEFAULT="${2:-false}"
     ENV_NAME="${ENV_NAME_DEFAULT}"
     RECREATE="false"
-    WITH_FLASH_ATTN="false"
+    WITH_FLASH_ATTN="${WITH_FLASH_ATTN_DEFAULT}"
+
+    shift
+    if [[ $# -gt 0 && ( "$1" == "true" || "$1" == "false" ) ]]; then
+        shift
+    fi
 
     while [[ $# -gt 0 ]]; do
         case "$1" in

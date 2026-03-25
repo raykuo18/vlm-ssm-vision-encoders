@@ -112,7 +112,7 @@ class HFCausalLLMBackbone(LLMBackbone, ABC):
         self.llm_max_length = llm_max_length
         self.inference_mode = inference_mode
 
-        disable_flash_env = os.environ.get("VLM_BACKBONES_DISABLE_FLASH_ATTN", "").lower()
+        disable_flash_env = os.environ.get("PRISMATIC_DISABLE_FLASH_ATTN", "").lower()
         if disable_flash_env in {"1", "true", "yes"}:
             use_flash_attention_2 = False
 

@@ -89,14 +89,25 @@ ensure_cuda_dev_libraries() {
     fi
 }
 
-install_base_python_stack() {
+install_common_python_stack() {
     local env_name="$1"
     run_in_env "${env_name}" "python -m pip install -U pip setuptools wheel"
     run_in_env "${env_name}" "python -m pip install --upgrade --index-url '${TORCH_INDEX_URL}' 'torch==${TORCH_VERSION}' 'torchvision==${TORCHVISION_VERSION}' 'torchaudio==${TORCHAUDIO_VERSION}'"
-    run_in_env "${env_name}" "python -m pip install 'accelerate==${ACCELERATE_VERSION}' 'einops==${EINOPS_VERSION}' 'huggingface_hub==${HUGGINGFACE_HUB_VERSION}' 'jsonlines==${JSONLINES_VERSION}' 'Pillow==${PILLOW_VERSION}' 'protobuf==${PROTOBUF_VERSION}' 'PyYAML==${PYYAML_VERSION}' 'requests==${REQUESTS_VERSION}' 'rich==${RICH_VERSION}' 'safetensors==${SAFETENSORS_VERSION}' 'sentencepiece==${SENTENCEPIECE_VERSION}' 'timm==${TIMM_VERSION}' 'tokenizers==${TOKENIZERS_VERSION}' 'transformers==${TRANSFORMERS_VERSION}'"
     run_in_env "${env_name}" "python -m pip uninstall -y chardet || true"
     run_in_env "${env_name}" "python -m pip install packaging ninja"
     install_cuda_runtime_activate_hook "${env_name}"
+}
+
+install_train_python_stack() {
+    local env_name="$1"
+    install_common_python_stack "${env_name}"
+    run_in_env "${env_name}" "python -m pip install 'accelerate==${ACCELERATE_VERSION}' 'certifi==${CERTIFI_VERSION}' 'einops==${EINOPS_VERSION}' 'huggingface_hub==${HUGGINGFACE_HUB_VERSION}' 'jsonlines==${JSONLINES_VERSION}' 'Pillow==${PILLOW_VERSION}' 'protobuf==${PROTOBUF_VERSION}' 'PyYAML==${PYYAML_VERSION}' 'requests==${REQUESTS_VERSION}' 'rich==${RICH_VERSION}' 'safetensors==${SAFETENSORS_VERSION}' 'sentencepiece==${SENTENCEPIECE_VERSION}' 'timm==${TIMM_VERSION}' 'tokenizers==${TOKENIZERS_VERSION}' 'transformers==${TRANSFORMERS_VERSION}'"
+}
+
+install_eval_python_stack() {
+    local env_name="$1"
+    install_common_python_stack "${env_name}"
+    run_in_env "${env_name}" "python -m pip install 'accelerate==${EVAL_ACCELERATE_VERSION}' 'certifi==${EVAL_CERTIFI_VERSION}' 'einops==${EINOPS_VERSION}' 'huggingface_hub==${HUGGINGFACE_HUB_VERSION}' 'jsonlines==${JSONLINES_VERSION}' 'Pillow==${PILLOW_VERSION}' 'protobuf==${PROTOBUF_VERSION}' 'PyYAML==${PYYAML_VERSION}' 'requests==${EVAL_REQUESTS_VERSION}' 'rich==${RICH_VERSION}' 'safetensors==${SAFETENSORS_VERSION}' 'sentencepiece==${SENTENCEPIECE_VERSION}' 'timm==${EVAL_TIMM_VERSION}' 'tokenizers==${TOKENIZERS_VERSION}' 'transformers==${TRANSFORMERS_VERSION}' 'wandb==${EVAL_WANDB_VERSION}'"
 }
 
 install_flash_attn_if_requested() {
@@ -135,11 +146,47 @@ install_flash_attn_if_requested() {
 install_base_inference_stack() {
     local env_name="$1"
     local with_flash_attn="$2"
-    install_base_python_stack "${env_name}"
+    install_train_python_stack "${env_name}"
     if [[ "${with_flash_attn}" == "true" ]]; then
         install_flash_attn_if_requested "${env_name}" "${with_flash_attn}"
     else
         log "Skipping flash-attn (not required for backbone inference). Pass --with-flash-attn to install it."
+    fi
+}
+
+install_train_python_extras() {
+    local env_name="$1"
+    run_in_env "${env_name}" "python -m pip uninstall -y draccus || true"
+    run_in_env "${env_name}" "python -m pip install 'draccus @ ${DRACCUS_GIT_REF}' 'wandb==${WANDB_VERSION}'"
+}
+
+install_eval_python_extras() {
+    local env_name="$1"
+    run_in_env "${env_name}" "python -m pip uninstall -y draccus || true"
+    run_in_env "${env_name}" "python -m pip install 'accelerate==${EVAL_ACCELERATE_VERSION}' 'draccus @ ${DRACCUS_GIT_REF}' 'ascii_magic==${ASCII_MAGIC_VERSION}' 'gradio==${GRADIO_VERSION}' 'gradio_client==${GRADIO_CLIENT_VERSION}' 'pydantic==${PYDANTIC_VERSION}' 'jinja2==${JINJA2_VERSION}' 'mosaicml-streaming==${MOSAICML_STREAMING_VERSION}' 'openai==${OPENAI_VERSION}' 'pycocotools==${PYCOCOTOOLS_VERSION}' 'scikit-image==${SCIKIT_IMAGE_VERSION}' 'scikit-learn==${SCIKIT_LEARN_VERSION}' 'webdataset==${WEBDATASET_VERSION}' 'pymongo==${PYMONGO_VERSION}' 'spacy==${SPACY_VERSION}'"
+}
+
+install_base_train_stack() {
+    local env_name="$1"
+    local with_flash_attn="$2"
+    install_train_python_stack "${env_name}"
+    install_train_python_extras "${env_name}"
+    if [[ "${with_flash_attn}" == "true" ]]; then
+        install_flash_attn_if_requested "${env_name}" "${with_flash_attn}"
+    else
+        log "Skipping flash-attn. Pass --with-flash-attn to install it for train/eval parity."
+    fi
+}
+
+install_base_eval_stack() {
+    local env_name="$1"
+    local with_flash_attn="$2"
+    install_eval_python_stack "${env_name}"
+    install_eval_python_extras "${env_name}"
+    if [[ "${with_flash_attn}" == "true" ]]; then
+        install_flash_attn_if_requested "${env_name}" "${with_flash_attn}"
+    else
+        log "Skipping flash-attn for evaluation. Pass --with-flash-attn to enable it."
     fi
 }
 
@@ -207,4 +254,15 @@ install_vit_adapter_extras() {
 finish_env_setup() {
     local env_name="$1"
     run_in_env "${env_name}" "python -m pip install -e '${REPO_ROOT}' --no-deps"
+}
+
+finish_train_env_setup() {
+    local env_name="$1"
+    finish_env_setup "${env_name}"
+}
+
+finish_eval_env_setup() {
+    local env_name="$1"
+    run_in_env "${env_name}" "python -m pip install -e '${REPO_ROOT}' --no-deps"
+    run_in_env "${env_name}" "python -m pip install -e '${REPO_ROOT}/third_party/vlm-evaluation' --no-deps"
 }

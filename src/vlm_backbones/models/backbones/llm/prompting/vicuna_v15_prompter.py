@@ -12,6 +12,10 @@ from vlm_backbones.models.backbones.llm.prompting.base_prompter import PromptBui
 
 # Default system prompt for the public inference package.
 SYS_PROMPTS = {
+    "prismatic": (
+        "A chat between a curious user and an artificial intelligence assistant. "
+        "The assistant gives helpful, detailed, and polite answers to the user's questions."
+    ),
     "vlm_backbones": (
         "A chat between a curious user and an artificial intelligence assistant. "
         "The assistant gives helpful, detailed, and polite answers to the user's questions."

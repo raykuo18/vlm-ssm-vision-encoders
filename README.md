@@ -1,15 +1,12 @@
 # VLM SSM Vision Encoders
 
-Inference-only release for the paper _Do VLMs Need Vision Transformers? Evaluating State Space Models as Vision Encoders_.
+Public release for the paper _Do VLMs Need Vision Transformers? Evaluating State Space Models as Vision Encoders_.
 
-This repository packages a clean public inference surface around a representative set of released checkpoints. It focuses on:
+This repository now ships three workflows:
 
-- loading a released checkpoint
-- running single-image generation
-- reproducing the main public result tables included in `results/`
-- building validated environments for the released backbone families
-
-Training and evaluation code will be released soon.
+- `src/vlm_backbones/` for released-checkpoint download and inference
+- `src/prismatic/` for parity-oriented training inside this repo
+- `third_party/vlm-evaluation/` plus repo-local wrappers for benchmark evaluation and scoring
 
 ## Scope
 
@@ -22,11 +19,13 @@ This release supports Vicuna v1.5 7B checkpoints with these vision backbone fami
 - ViTDet
 - ViT-Adapter
 
-The public package is manifest-driven. Each released model has a stable public id in `model_zoo/models.yaml`, while raw internal run ids remain metadata only.
+The public package is manifest-driven. Each released checkpoint has a stable public id in `model_zoo/models.yaml`, while paper-facing run ids remain metadata only.
+
+Training and evaluation stay close to the original `Mamba-MLLM` stack to minimize behavioral drift. The inference surface remains the stable `vlm_backbones` API from v1.
 
 ## Credit
 
-This codebase builds on `TRI-ML/prismatic-vlms`, with the public release reduced to an inference-only package and backbone-specific runtime wrappers.
+This codebase builds on `TRI-ML/prismatic-vlms` and the original `Mamba-MLLM` train/eval stack. The train/eval path is intentionally vendored with a narrow compatibility layer instead of being reimplemented from scratch.
 
 ## Clone
 
@@ -45,7 +44,17 @@ git submodule update --init --recursive
 
 The environment builders can clone the required `third_party/` repos automatically if they are missing, but a recursive clone is still the cleaner default because several released backbone families load code directly from those source trees at runtime.
 
-## Quickstart
+## Environment Builders
+
+Environment setup is split by purpose:
+
+- `scripts/env/build_<family>.sh` for inference-only environments
+- `scripts/env/build_<family>_train.sh` for training environments
+- `scripts/env/build_<family>_eval.sh` for evaluation environments
+
+See [docs/TRAIN_EVAL_GUIDE.md](/lustre/nvwulf/home/skuo/vlm-project/vlm-ssm-vision-encoders/docs/TRAIN_EVAL_GUIDE.md) for the full matrix and exact commands.
+
+## Inference Quickstart
 
 1. Load a CUDA toolkit that provides `nvcc` if you are building an environment that compiles CUDA extensions.
 
@@ -67,7 +76,7 @@ Manual `TORCH_CUDA_ARCH_LIST` is a fallback, not the primary path. CUDA extensio
 
 Backbone environments skip FlashAttention by default because it is not required for backbone inference in this repo. If you want FlashAttention anyway, pass `--with-flash-attn`.
 
-2. Build the environment for the family you want to use.
+2. Build the inference environment for the family you want to use.
 
 ```bash
 ./scripts/env/build_vmamba.sh --env-name vlm-vmamba
@@ -159,6 +168,49 @@ If `--temperature` is omitted, generation stays deterministic.
 
 For gated Vicuna weights, authenticate with Hugging Face first or export `HF_TOKEN`.
 
+## Training Quickstart
+
+Use the train builders for reproducible paper-style runs. On NVWULF, `scripts/setup_paths.sh` exports the known training and evaluation dataset roots.
+
+```bash
+source scripts/setup_paths.sh
+./scripts/env/build_maxvit_train.sh
+conda activate vlm-backbones-train-maxvit
+torchrun --standalone --nnodes 1 --nproc-per-node 1 scripts/train.py \
+  --stage finetune \
+  --model.type in1k-224px-maxvit-t-letterbox-s3+7b-vicuna \
+  --dataset.type llava-v15-debug-320 \
+  --run_root_dir "$RUN_ROOT_DIR" \
+  --dry_run true
+```
+
+The train/eval release only supports the published ViT, MaxViT, VMamba, MambaVision, ViTDet, and ViT-Adapter families with Vicuña v1.5 7B.
+
+## Evaluation Quickstart
+
+Evaluation uses the vendored `vlm_eval` package through repo-local wrappers:
+
+```bash
+source scripts/setup_paths.sh
+./scripts/env/build_maxvit_eval.sh
+conda activate vlm-backbones-eval-maxvit
+python scripts/evaluate.py \
+  --model_family prismatic \
+  --model_id maxvit-t-in1k-224-s3 \
+  --dataset.type text-vqa-slim \
+  --results_dir results
+python scripts/score.py \
+  --model_id maxvit-t-in1k-224-s3 \
+  --dataset.type text-vqa-slim \
+  --results_dir results
+```
+
+To evaluate a local training run instead of a released public checkpoint, pass `--model_dir "$RUN_ROOT_DIR/<run_id>"` and set `--model_id` to the run name you want written under `results/`.
+
+## Train/Eval Guide
+
+Detailed train/eval instructions live in [docs/TRAIN_EVAL_GUIDE.md](/lustre/nvwulf/home/skuo/vlm-project/vlm-ssm-vision-encoders/docs/TRAIN_EVAL_GUIDE.md).
+
 ## Released Models
 
 | Public ID | Family | Task | Resolution | Tokens | Params | Weighted VQA | Weighted Loc | Weighted Overall |
@@ -200,9 +252,13 @@ Machine-readable copies live in `results/`. See `RESULTS.md` for the full table 
 
 ```text
 src/vlm_backbones/     Python package
+src/prismatic/         Vendored train/eval compatibility package
 model_zoo/             Released model manifest
 results/               Static release-facing tables
 scripts/env/           Family-specific environment builders
+scripts/train.py       Training entrypoint
+scripts/evaluate.py    Evaluation wrapper
+scripts/score.py       Scoring wrapper
 scripts/validate/      Smoke validation scripts
 third_party/           Pinned source dependencies
 ```

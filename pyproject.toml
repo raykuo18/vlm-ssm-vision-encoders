@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "vlm-ssm-vision-encoders"
 version = "0.1.0"
-description = "Inference-only release for evaluating vision backbones in modular VLMs."
+description = "Vision-backbone release for modular VLM inference, training, and evaluation."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
@@ -27,7 +27,29 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "pytest>=8.3.0",
     "ruff>=0.9.0",
+]
+train = [
+    "draccus @ git+https://github.com/dlwh/draccus.git@13dd58f0c67002add8a188d85ba0e74661039078",
+    "wandb==0.22.1",
+]
+eval = [
+    "accelerate==1.11.0",
+    "ascii_magic==2.7.2",
+    "draccus @ git+https://github.com/dlwh/draccus.git@13dd58f0c67002add8a188d85ba0e74661039078",
+    "gradio==3.35.2",
+    "gradio_client==0.2.9",
+    "jinja2==3.0.3",
+    "mosaicml-streaming==0.13.0",
+    "openai==2.6.1",
+    "pycocotools==2.0.10",
+    "pydantic==1.10.14",
+    "pymongo==4.15.3",
+    "scikit-image==0.25.2",
+    "scikit-learn==1.7.2",
+    "spacy==3.7.3",
+    "webdataset==1.0.2",
 ]
 
 [project.scripts]
@@ -43,6 +65,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 vlm_backbones = ["models/backbones/vision/vmamba_conf/**/*.yaml"]
+prismatic = ["py.typed"]
 
 [tool.setuptools.data-files]
 "model_zoo" = ["model_zoo/models.yaml"]

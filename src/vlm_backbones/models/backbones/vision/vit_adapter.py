@@ -11,6 +11,7 @@ import importlib
 import re
 import runpy
 import sys
+import time
 import zipfile
 from dataclasses import dataclass
 from functools import lru_cache, partial
@@ -18,7 +19,9 @@ from pathlib import Path
 from typing import Callable, Dict, Optional, Tuple, Union
 
 import torch
+import torch.distributed as dist
 from PIL import Image, ImageOps
+from torch.hub import download_url_to_file
 from torchvision.transforms import Compose, Normalize, ToTensor
 from torchvision.transforms.functional import InterpolationMode
 
@@ -57,6 +60,7 @@ class ViTAdapterVariant:
     config_relpath: str
     checkpoints: Tuple[str, ...]
     preprocess: Dict[str, object]
+    download_url: Optional[str] = None
 
 
 class ResizeKeepRatioMax:
@@ -176,6 +180,7 @@ VIT_ADAPTER_VARIANTS: Dict[str, ViTAdapterVariant] = {
             "upernet_deit_adapter_base_512_160k_ade20k.pth.tar",
         ),
         preprocess=_seg_preprocess(2048, 512),
+        download_url="https://github.com/czczup/ViT-Adapter/releases/download/v0.3.1/upernet_deit_adapter_base_512_160k_ade20k.pth.tar",
     ),
     "vit-adapter-upernet-augreg-t-ade20k-512": ViTAdapterVariant(
         config_relpath="configs/ade20k/upernet_augreg_adapter_tiny_512_160k_ade20k.py",
@@ -344,6 +349,44 @@ def _maybe_extract_zip(path: Path) -> Optional[Path]:
     return None
 
 
+def _download_checkpoint(variant: ViTAdapterVariant) -> Optional[Path]:
+    if not variant.download_url:
+        return None
+
+    target = VIT_ADAPTER_CKPT_ROOT / variant.checkpoints[0]
+    if target.exists():
+        return target
+    if not _use_pretrained_weights():
+        return target
+
+    is_distributed = dist.is_available() and dist.is_initialized()
+    rank = dist.get_rank() if is_distributed else 0
+    if is_distributed and rank != 0:
+        timeout = int(os.environ.get("VIT_ADAPTER_CKPT_WAIT_SECS", "900"))
+        poll = float(os.environ.get("VIT_ADAPTER_CKPT_POLL_SECS", "2.0"))
+        start = time.time()
+        while time.time() - start < timeout:
+            if target.exists():
+                return target
+            time.sleep(poll)
+        raise FileNotFoundError(
+            f"Timed out waiting for ViT-Adapter checkpoint at {target}. "
+            "Ensure rank0 can download it or pre-populate VIT_ADAPTER_CKPT_ROOT."
+        )
+
+    tmp_path = target.with_name(f"{target.name}.partial")
+    if tmp_path.exists():
+        tmp_path.unlink(missing_ok=True)
+    overwatch.info(f"Downloading ViT-Adapter checkpoint -> {target}")
+    try:
+        download_url_to_file(url=variant.download_url, dst=tmp_path, progress=True)
+        tmp_path.replace(target)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
+    return target
+
+
 def _resolve_checkpoint(variant: ViTAdapterVariant) -> Path:
     VIT_ADAPTER_CKPT_ROOT.mkdir(parents=True, exist_ok=True)
     candidates = list(variant.checkpoints)
@@ -365,6 +408,14 @@ def _resolve_checkpoint(variant: ViTAdapterVariant) -> Path:
 
     if not _use_pretrained_weights():
         return VIT_ADAPTER_CKPT_ROOT / candidates[0]
+
+    downloaded = _download_checkpoint(variant)
+    if downloaded is not None and downloaded.exists():
+        if downloaded.suffix == ".zip":
+            extracted = _maybe_extract_zip(downloaded)
+            if extracted is not None:
+                return extracted
+        return downloaded
 
     available = ", ".join(sorted(p.name for p in VIT_ADAPTER_CKPT_ROOT.glob("*") if p.is_file()))
     raise FileNotFoundError(

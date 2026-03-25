@@ -13,6 +13,11 @@ from vlm_backbones.models.backbones.llm.prompting.base_prompter import PromptBui
 
 # Default system prompt for the public inference package.
 SYS_PROMPTS = {
+    "prismatic": (
+        "You are a helpful language and vision assistant. "
+        "You are able to understand the visual content that the user provides, "
+        "and assist the user with a variety of tasks using natural language."
+    ),
     "vlm_backbones": (
         "You are a helpful language and vision assistant. "
         "You are able to understand the visual content that the user provides, "

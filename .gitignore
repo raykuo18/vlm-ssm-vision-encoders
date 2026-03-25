@@ -24,6 +24,12 @@ artifacts/
 checkpoints/
 downloads/
 scripts/release/
+runs_2gpu_validation/
+runs_2gpu_eval_checkpoints/
+results_2gpu_validation/
+results_2gpu_validation_local/
+results_2gpu_validation_smoke/
+eval_results_validation/
 
 model_zoo/*.local.yaml
 
